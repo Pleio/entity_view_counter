@@ -1,5 +1,5 @@
 {
-    "name": "pleio/entity_view_counter",
+    "name": "coldtrick/entity_view_counter",
     "type": "elgg-plugin",
     "require": {
         "composer/installers": "~1.0"
