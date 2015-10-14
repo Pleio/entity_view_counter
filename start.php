@@ -5,8 +5,8 @@
 	require_once(dirname(__FILE__) . "/lib/functions.php");
 	require_once(dirname(__FILE__) . "/lib/hooks.php");
 	
-	elgg_register_event_handler("init", "system", "entity_view_counter_init");
-	elgg_register_event_handler("pagesetup", "system", "entity_view_counter_pagesetup");
+	//elgg_register_event_handler("init", "system", "entity_view_counter_init");
+	//elgg_register_event_handler("pagesetup", "system", "entity_view_counter_pagesetup");
 	
 	function entity_view_counter_init() {
 		// extend css
