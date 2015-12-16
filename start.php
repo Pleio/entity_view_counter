@@ -13,7 +13,6 @@ function entity_view_counter_init() {
 	elgg_extend_view("css/admin", "css/entity_view_counter/admin");
 
 	// register plugin hooks
-	elgg_register_plugin_hook_handler("permissions_check:annotate", "all", "entity_view_counter_permissions_check_annotate_hook");
 	elgg_register_plugin_hook_handler("register", "menu:entity", "entity_view_counter_entity_menu_hook", 502);
 	elgg_register_plugin_hook_handler("setting", "plugin", "entity_view_counter_plugin_setting_hook");
 }

@@ -80,6 +80,10 @@ function entity_view_counter_extend_views() {
 }
 
 function entity_view_counter_add_view(ElggEntity $entity) {
+	if (!entity_view_counter_is_counted($entity)) {
+		return null;
+	}
+
 	$current_session = elgg_get_entities_from_annotations(array(
 		"guid" => $entity->guid,
 		"annotation_name" => ENTITY_VIEW_COUNTER_ANNOTATION_NAME,
@@ -102,6 +106,24 @@ function entity_view_counter_add_view(ElggEntity $entity) {
 	if (is_int($count)) {
 		return $entity->setPrivateSetting(ENTITY_VIEW_COUNTER_ANNOTATION_NAME, $count + 1);
 	}
+}
+
+function entity_view_counter_is_counted(ElggEntity $entity) {
+	if (!entity_view_counter_is_configured_entity_type($entity->getType(), $entity->getSubtype())) {
+		return false;
+	}
+
+	if (isset($_SERVER["HTTP_USER_AGENT"]) && preg_match('/bot|crawl|slurp|spider/i', $_SERVER["HTTP_USER_AGENT"])) {
+		return false;
+	}
+
+	$user = elgg_get_logged_in_user_entity();
+	if ($user && $user->getGUID() == $entity->getOwnerGUID()) {
+		return false;
+	}
+
+	return true;
+
 }
 
 function entity_view_counter_count_views(ElggEntity $entity) {
