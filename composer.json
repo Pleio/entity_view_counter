@@ -1,7 +1,14 @@
 {
-    "name": "coldtrick/entity_view_counter",
+    "name": "pleio/entity_view_counter",
+    "description": "This plugin counts and shows the number of views for objects.",
     "type": "elgg-plugin",
+    "keywords": ["elgg", "plugin", "counter"],
+    "license": "GPL-2.0",
+    "support": {
+        "source": "https://github.com/Pleio/entity_view_counter",
+        "issues": "https://github.com/Pleio/entity_view_counter/issues"
+    },
     "require": {
-        "composer/installers": "~1.0"
+        "composer/installers": "^1.0.8"
     }
 }
