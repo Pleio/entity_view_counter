@@ -84,28 +84,18 @@ function entity_view_counter_add_view(ElggEntity $entity) {
 		return null;
 	}
 
-	$current_session = elgg_get_entities_from_annotations(array(
-		"guid" => $entity->guid,
-		"annotation_name" => ENTITY_VIEW_COUNTER_ANNOTATION_NAME,
-		"annotation_value" => session_id(),
-		"count" => true
-	));
-
-	if ($current_session) {
-		return null;
+	if (is_memcache_available()) {
+		$cache = new ElggMemcache('entity_view_counter');
+		$key = "view_" . session_id() . "_" . $entity->guid;
+        if ($cache->load($key)) {
+                return true;
+        } else {
+                $cache->save($key, 1);
+        }
 	}
 
-	$new_annotation_owner_guid = elgg_get_logged_in_user_guid();
-	if (empty($new_annotation_owner_guid)) {
-		$new_annotation_owner_guid = $entity->getGUID();
-	}
-
-	$entity->annotate(ENTITY_VIEW_COUNTER_ANNOTATION_NAME, session_id(), ACCESS_PUBLIC, $new_annotation_owner_guid);
-
-	$count = $entity->getPrivateSetting(ENTITY_VIEW_COUNTER_ANNOTATION_NAME);
-	if (is_int($count)) {
-		return $entity->setPrivateSetting(ENTITY_VIEW_COUNTER_ANNOTATION_NAME, $count + 1);
-	}
+	$count = (int) $entity->getPrivateSetting(ENTITY_VIEW_COUNTER_ANNOTATION_NAME);
+	return $entity->setPrivateSetting(ENTITY_VIEW_COUNTER_ANNOTATION_NAME, $count + 1);
 }
 
 function entity_view_counter_is_counted(ElggEntity $entity) {
@@ -128,7 +118,7 @@ function entity_view_counter_is_counted(ElggEntity $entity) {
 
 function entity_view_counter_count_views(ElggEntity $entity) {
 	$count = $entity->getPrivateSetting(ENTITY_VIEW_COUNTER_ANNOTATION_NAME);
-	if (is_int($count)) {
+	if ($count) {
 		return $count;
 	}
 
