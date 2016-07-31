@@ -80,19 +80,15 @@ function entity_view_counter_extend_views() {
 }
 
 function entity_view_counter_add_view(ElggEntity $entity) {
-	if (!entity_view_counter_is_counted($entity)) {
-		return null;
+	if (entity_view_counter_is_counted($entity)) {
+		return;
 	}
 
 	if (is_memcache_available()) {
 		$cache = new ElggMemcache('entity_view_counter');
 		$key = "view_" . session_id() . "_" . $entity->guid;
-        if ($cache->load($key)) {
-                return true;
-        } else {
-                $cache->save($key, 1);
-        }
-	}
+		$cache->save($key, 1);
+    }
 
 	$count = (int) $entity->getPrivateSetting(ENTITY_VIEW_COUNTER_ANNOTATION_NAME);
 	return $entity->setPrivateSetting(ENTITY_VIEW_COUNTER_ANNOTATION_NAME, $count + 1);
@@ -100,20 +96,49 @@ function entity_view_counter_add_view(ElggEntity $entity) {
 
 function entity_view_counter_is_counted(ElggEntity $entity) {
 	if (!entity_view_counter_is_configured_entity_type($entity->getType(), $entity->getSubtype())) {
-		return false;
+		return true;
 	}
 
 	if (isset($_SERVER["HTTP_USER_AGENT"]) && preg_match('/bot|crawl|slurp|spider/i', $_SERVER["HTTP_USER_AGENT"])) {
-		return false;
+		return true;
 	}
 
 	$user = elgg_get_logged_in_user_entity();
 	if ($user && $user->getGUID() == $entity->getOwnerGUID()) {
-		return false;
+		return true;
 	}
 
-	return true;
+	if (is_memcache_available()) {
+		$cache = new ElggMemcache('entity_view_counter');
+		$key = "view_" . session_id() . "_" . $entity->guid;
+        if ($cache->load($key)) {
+                return true;
+        }
+    }
 
+    if (entity_view_counter_ignore_ip()) {
+    	return true;
+    }
+
+	return false;
+}
+
+function entity_view_counter_ignore_ip() {
+	elgg_load_library("pgregg.ipcheck");
+
+	$client_ip = $_SERVER["REMOTE_ADDR"];
+	$client_ip = elgg_trigger_plugin_hook("remote_address", "system", array(
+		"remote_address" => $client_ip
+	), $client_ip);
+
+	$ranges = explode(',', elgg_get_plugin_setting("ignore_ips", "entity_view_counter"));
+	foreach ($ranges as $range) {
+		if (ip_in_range($client_ip, $range)) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 function entity_view_counter_count_views(ElggEntity $entity) {

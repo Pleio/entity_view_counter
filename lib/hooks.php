@@ -39,7 +39,7 @@ function entity_view_counter_plugin_setting_hook($hook, $type, $returnvalue, $pa
 		$plugin = elgg_extract("plugin", $params);
 		$setting = elgg_extract("name", $params);
 
-		if (($plugin->getID() == "entity_view_counter") && ($setting = "entity_types")) {
+		if (($plugin->getID() == "entity_view_counter") && ($setting == "entity_types")) {
 			$result = json_encode(elgg_extract("value", $params));
 		}
 	}
