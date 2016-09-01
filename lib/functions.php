@@ -90,8 +90,15 @@ function entity_view_counter_add_view(ElggEntity $entity) {
 		$cache->save($key, 1);
     }
 
-	$count = (int) $entity->getPrivateSetting(ENTITY_VIEW_COUNTER_ANNOTATION_NAME);
-	return $entity->setPrivateSetting(ENTITY_VIEW_COUNTER_ANNOTATION_NAME, $count + 1);
+    $guid = (int) $entity->guid;
+    $type = sanitise_string($entity->type);
+    $subtype = (int) $entity->subtype;
+
+    insert_data("
+    	INSERT INTO elgg_entity_views (guid, type, subtype, views)
+    	VALUES ({$guid}, '{$type}', {$subtype}, 1)
+    	ON DUPLICATE KEY UPDATE views = views + 1;
+    ");
 }
 
 function entity_view_counter_is_counted(ElggEntity $entity) {
@@ -142,13 +149,12 @@ function entity_view_counter_ignore_ip() {
 }
 
 function entity_view_counter_count_views(ElggEntity $entity) {
-	$count = $entity->getPrivateSetting(ENTITY_VIEW_COUNTER_ANNOTATION_NAME);
-	if ($count) {
-		return $count;
+	$guid = (int) $entity->guid;
+	$count = get_data_row("SELECT views FROM elgg_entity_views WHERE guid = {$guid}");
+
+	if ($count->views) {
+		return $count->views;
 	}
 
-	$count = $entity->countAnnotations(ENTITY_VIEW_COUNTER_ANNOTATION_NAME);
-	$entity->setPrivateSetting(ENTITY_VIEW_COUNTER_ANNOTATION_NAME, $count);
-
-	return $count;
+	return 0;
 }
