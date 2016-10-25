@@ -34,8 +34,8 @@ foreach ($views as $view) {
     }
 
     insert_data("
-        INSERT INTO elgg_entity_views (guid, type, subtype, container_guid, views)
-        VALUES ({$entity->guid}, '{$entity->type}', {$entity->subtype}, {$entity->container_guid}, {$view->value})
+        INSERT INTO elgg_entity_views (guid, type, subtype, container_guid, site_guid, views)
+        VALUES ({$entity->guid}, '{$entity->type}', {$entity->subtype}, {$entity->container_guid}, {$entity->site_guid}, {$view->value})
         ON DUPLICATE KEY UPDATE views = views + {$view->value}"
     );
 }

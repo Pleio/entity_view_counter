@@ -95,8 +95,8 @@ function entity_view_counter_add_view(ElggEntity $entity) {
     $subtype = (int) $entity->subtype;
 
     insert_data("
-    	INSERT INTO elgg_entity_views (guid, type, subtype, views)
-    	VALUES ({$guid}, '{$type}', {$subtype}, 1)
+    	INSERT INTO elgg_entity_views (guid, type, subtype, container_guid, site_guid, views)
+    	VALUES ({$guid}, '{$type}', {$subtype}, {$entity->container_guid}, {$entity->site_guid}, 1)
     	ON DUPLICATE KEY UPDATE views = views + 1;
     ");
 }
