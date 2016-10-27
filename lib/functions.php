@@ -102,6 +102,10 @@ function entity_view_counter_add_view(ElggEntity $entity) {
 }
 
 function entity_view_counter_is_counted(ElggEntity $entity) {
+	if (php_sapi_name() === 'cli') {
+	  return true;
+	}
+
 	if (!entity_view_counter_is_configured_entity_type($entity->getType(), $entity->getSubtype())) {
 		return true;
 	}
